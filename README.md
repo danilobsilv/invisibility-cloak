@@ -9,7 +9,7 @@
 <h3>Processing of Each Frame:</h3>
 <ul>
     <li>After capturing the background, each subsequent frame of the video is processed.</li>
-    <li>A mask is created to detect the specific color in BGR (defined by user video click).</li>
+    <li>A mask is created to detect the blue color in BGR.</li>
     <li>The mask is refined to remove noise and imperfections.</li>
     <li>The static background is combined with the current frame using the mask to create the "invisibility" effect.</li>
 </ul>
@@ -35,10 +35,7 @@
     </li>
     <li>Activate the virtual environment:
         <pre><code>
-        <!-- On Windows -->
-        venv\Scripts\activate<br>
-        <!-- On macOS/Linux -->
-        source venv/bin/activate
+        venv\Scripts\activate
         </code></pre>
     </li>
     <li>Install the required dependencies:
