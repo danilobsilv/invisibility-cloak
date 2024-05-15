@@ -1,60 +1,73 @@
 import cv2
 import numpy as np
-import time
+
+global_frame = None
+b, g, r = 0, 0, 0
+
+def capture_background(cap, num_frames=60):
+    # Captura o fundo para um número especificado de quadros
+    for i in range(num_frames):
+        ret, background = cap.read()
+    return background
+
+def mouseRGB(event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDOWN: #checks mouse left button down condition
+        global b, g, r
+        b = global_frame[y,x,0]
+        g = global_frame[y,x,1]
+        r = global_frame[y,x,2]
 
 
-def invisibility_cloak(video_path):
-    # Captura o vídeo
-    capture_video = cv2.VideoCapture(video_path)
+def main():
+    cv2.namedWindow('cloack')
+    cv2.setMouseCallback('cloack', mouseRGB)
+    cap = cv2.VideoCapture(0)
+    
+    # Aguardando para capturar o fundo
+    print("Posicione a câmera para capturar o fundo. Aguarde...")
+    background = capture_background(cap)
+    print("Fundo capturado.")
 
-    # Aguarda a inicialização da câmera
-    time.sleep(1)
+    global b, g, r
 
-    count = 0
-    background = 0
-
-    # Captura o fundo (primeiros 60 frames)
-    for i in range(60):
-        return_val, background = capture_video.read()
-        if not return_val:
-            continue
-
-    background = np.flip(background, axis=1)
-
-    # Processa o vídeo
-    while capture_video.isOpened():
-        return_val, img = capture_video.read()
-        if not return_val:
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
             break
-        count += 1
-        img = np.flip(img, axis=1)
 
-        # Converte a imagem de BGR para HSV
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-
-        # Define a faixa de cor preta no espaço HSV
-        lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 40, 40])
-
-        # Gera uma máscara para detectar a cor preta
-        mask = cv2.inRange(hsv, lower_black, upper_black)
-
-        # Refina a máscara correspondente à cor preta detectada
-        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=2)
-        mask = cv2.dilate(mask, np.ones((3, 3), np.uint8), iterations=1)
+        # Converte o frame de BGR para HSV
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        
+        # Define o intervalo da cor a ser escondida
+        lower_bound = np.array([b - 60, g - 60, r - 60])
+        upper_bound = np.array([b + 60, g + 60, r + 60])
+        
+        # Cria uma máscara para a cor especificada
+        mask = cv2.inRange(frame, lower_bound, upper_bound)
+        
+        # Inverte a máscara
         mask_inv = cv2.bitwise_not(mask)
+        
+        # Extrai a parte do frame sem a cor a ser escondida
+        frame_part = cv2.bitwise_and(frame, frame, mask=mask_inv)
+        
+        # Extrai a parte do fundo correspondente à cor a ser escondida
+        background_part = cv2.bitwise_and(background, background, mask=mask)
+        
+        # Combina as duas partes
+        result = cv2.addWeighted(frame_part, 1, background_part, 1, 0)
+        
+        global global_frame
+        global_frame = result
 
-        # Gera a saída final
-        res1 = cv2.bitwise_and(background, background, mask=mask)
-        res2 = cv2.bitwise_and(img, img, mask=mask_inv)
-        final_output = cv2.addWeighted(res1, 1, res2, 1, 0)
-
-        cv2.imshow("INVISIBLE MAN", final_output)
-
-        k = cv2.waitKey(10)
-        if k == 27:
+        # Exibe o resultado
+        cv2.imshow('cloack', result)
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    # Libera os recursos e fecha todas as janelas
-    capture_video.release()
+    cap.release()
     cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
