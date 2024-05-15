@@ -1,6 +1,6 @@
-from invisibility_cloak import invisible_man_effect
+from invisibility_cloak import invisibility_cloak
 
 if __name__ == "__main__":
     video_path = "video_path_input_here.mp4"
 
-    invisible_man_effect(video_path)
+    invisibility_cloak(video_path)
