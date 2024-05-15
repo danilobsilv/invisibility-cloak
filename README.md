@@ -34,9 +34,7 @@
         <pre><code>python -m venv venv</code></pre>
     </li>
     <li>Activate the virtual environment:
-        <pre><code>
-        venv\Scripts\activate
-        </code></pre>
+        <pre><code>venv\Scripts\activate</code></pre>
     </li>
     <li>Install the required dependencies:
         <pre><code>pip install -r requirements.txt</code></pre>
