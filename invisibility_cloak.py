@@ -1,3 +1,5 @@
+#Integrantes: Danilo Bruno e Kirk Sahdo
+
 import cv2
 import numpy as np
 
