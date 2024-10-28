@@ -20,7 +20,7 @@ def get_color_range(color_name):
         'Vermelho': ([0, 120, 70], [10, 255, 255], [170, 120, 70], [180, 255, 255]),  # Adicionado segundo intervalo para vermelho
         'Verde': ([25, 40, 40], [85, 255, 255]),  # Ampliado intervalo de verde para captar tons mais claros e escuros
         'Azul': ([90, 40, 40], [130, 255, 255]),
-        'Amarelo': ([20, 100, 100], [40, 255, 255]),  # Ajuste mais fino para melhorar a detecção do amarelo
+        'Amarelo': ([22, 150, 150], [35, 255, 255]),  # Ajuste mais fino para melhorar a detecção do amarelo
         'Roxo': ([130, 50, 50], [170, 255, 255]),
     }
     return color_ranges.get(color_name, None)
@@ -45,6 +45,8 @@ def start_camera_with_color_selector():
         frame = np.flip(frame, axis=1)
         hsv_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
+        hsv_frame = cv2.GaussianBlur(hsv_frame, (5, 5), 0)
+
         if color_range:
             # Extrai intervalo de cor selecionado
             if selected_color == 'Vermelho':
@@ -62,8 +64,9 @@ def start_camera_with_color_selector():
                 upper_color = np.array(color_range[1])
                 mask1 = cv2.inRange(hsv_frame, lower_color, upper_color)
 
-            mask1 = cv2.morphologyEx(mask1, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8), iterations=2)
-            mask1 = cv2.dilate(mask1, np.ones((3, 3), np.uint8), iterations=1)
+            # Aplicação de filtros de ruído para melhorar a máscara
+            mask1 = cv2.morphologyEx(mask1, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8), iterations=2)  # Reduz ruídos menores
+            mask1 = cv2.dilate(mask1, np.ones((5, 5), np.uint8), iterations=1)  # Aumenta a região da máscara
             mask2 = cv2.bitwise_not(mask1)
 
             # Combina o fundo e o quadro atual com a máscara
@@ -106,3 +109,7 @@ def start_camera_with_color_selector():
     update_invisibility_effect()
 
     root.mainloop()
+
+
+# Iniciar o aplicativo
+start_camera_with_color_selector()
