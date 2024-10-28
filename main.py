@@ -1,4 +1,4 @@
-from invisibility_cloak import invisibility_cloak
+from invisibility_cloak import start_camera_with_color_selector
 
 if __name__ == "__main__":
-    invisibility_cloak()
+    start_camera_with_color_selector()
